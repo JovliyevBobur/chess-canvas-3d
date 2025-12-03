@@ -12,89 +12,152 @@ interface ChessPiece3DProps {
 }
 
 const pieceGeometry: Record<PieceSymbol, { segments: number[][]; height: number }> = {
-  p: { // Pawn
+  p: { // Pawn - Classic Staunton style
     segments: [
-      [0.3, 0],
-      [0.3, 0.1],
-      [0.25, 0.15],
-      [0.18, 0.35],
-      [0.22, 0.45],
-      [0.16, 0.6],
-      [0.13, 0.75],
-      [0.08, 0.85],
+      [0.32, 0],      // Base bottom
+      [0.32, 0.04],   // Base edge
+      [0.28, 0.08],   // Base top bevel
+      [0.26, 0.1],    // Base top
+      [0.18, 0.12],   // Stem start
+      [0.16, 0.2],    // Stem
+      [0.15, 0.3],    // Stem narrow
+      [0.17, 0.35],   // Collar start
+      [0.2, 0.38],    // Collar
+      [0.17, 0.42],   // Collar end
+      [0.14, 0.5],    // Neck
+      [0.18, 0.55],   // Head base
+      [0.2, 0.6],     // Head wide
+      [0.19, 0.68],   // Head curve
+      [0.15, 0.75],   // Head top curve
+      [0.08, 0.8],    // Head tip
+      [0, 0.82],      // Top point
     ],
-    height: 0.85,
+    height: 0.82,
   },
-  r: { // Rook
+  r: { // Rook - Castle tower style
     segments: [
-      [0.35, 0],
-      [0.35, 0.1],
-      [0.28, 0.15],
-      [0.25, 0.55],
-      [0.32, 0.6],
-      [0.32, 0.8],
-      [0.22, 0.8],
-      [0.22, 0.7],
-      [0.28, 0.7],
-      [0.28, 0.65],
-      [0.08, 0.65],
+      [0.35, 0],      // Base bottom
+      [0.35, 0.05],   // Base edge
+      [0.3, 0.1],     // Base bevel
+      [0.28, 0.12],   // Base top
+      [0.2, 0.14],    // Stem start
+      [0.18, 0.35],   // Stem middle
+      [0.17, 0.5],    // Stem upper
+      [0.22, 0.52],   // Collar
+      [0.25, 0.55],   // Tower base
+      [0.25, 0.75],   // Tower wall
+      [0.28, 0.77],   // Battlement base
+      [0.28, 0.9],    // Battlement top
+      [0.2, 0.9],     // Inner battlement
+      [0.2, 0.82],    // Battlement inner
+      [0.15, 0.82],   // Center
+      [0.15, 0.9],    // Center top
+      [0, 0.9],       // Top center
     ],
-    height: 1.0,
+    height: 0.95,
   },
-  n: { // Knight
+  n: { // Knight - Horse head style
     segments: [
-      [0.35, 0],
-      [0.35, 0.1],
-      [0.28, 0.15],
-      [0.2, 0.4],
-      [0.25, 0.6],
-      [0.2, 0.85],
-      [0.12, 1.0],
-      [0.06, 1.1],
+      [0.34, 0],      // Base bottom
+      [0.34, 0.05],   // Base edge
+      [0.29, 0.1],    // Base bevel
+      [0.27, 0.12],   // Base top
+      [0.18, 0.14],   // Stem start
+      [0.16, 0.25],   // Stem
+      [0.15, 0.35],   // Stem upper
+      [0.18, 0.38],   // Collar
+      [0.22, 0.42],   // Neck base
+      [0.25, 0.5],    // Neck wide
+      [0.22, 0.6],    // Neck curve
+      [0.18, 0.7],    // Head base
+      [0.2, 0.8],     // Muzzle
+      [0.15, 0.9],    // Muzzle top
+      [0.12, 0.95],   // Ear area
+      [0.14, 1.0],    // Ear
+      [0.08, 1.05],   // Top curve
+      [0, 1.08],      // Top point
     ],
-    height: 1.1,
+    height: 1.08,
   },
-  b: { // Bishop
+  b: { // Bishop - Mitre hat style
     segments: [
-      [0.35, 0],
-      [0.35, 0.1],
-      [0.26, 0.15],
-      [0.18, 0.5],
-      [0.12, 0.8],
-      [0.08, 1.0],
-      [0.12, 1.1],
-      [0.06, 1.15],
+      [0.34, 0],      // Base bottom
+      [0.34, 0.05],   // Base edge
+      [0.29, 0.1],    // Base bevel
+      [0.27, 0.12],   // Base top
+      [0.18, 0.14],   // Stem start
+      [0.16, 0.25],   // Stem lower
+      [0.15, 0.4],    // Stem middle
+      [0.18, 0.45],   // Collar
+      [0.2, 0.48],    // Collar wide
+      [0.17, 0.52],   // Collar end
+      [0.14, 0.6],    // Neck
+      [0.18, 0.65],   // Mitre base
+      [0.2, 0.72],    // Mitre wide
+      [0.18, 0.82],   // Mitre curve
+      [0.12, 0.95],   // Mitre top curve
+      [0.06, 1.05],   // Mitre peak
+      [0.08, 1.1],    // Ball base
+      [0.06, 1.15],   // Ball
+      [0, 1.18],      // Top point
     ],
-    height: 1.15,
+    height: 1.18,
   },
-  q: { // Queen
+  q: { // Queen - Crown style
     segments: [
-      [0.38, 0],
-      [0.38, 0.1],
-      [0.3, 0.15],
-      [0.2, 0.6],
-      [0.28, 0.75],
-      [0.16, 1.0],
-      [0.1, 1.2],
-      [0.15, 1.3],
-      [0.08, 1.35],
+      [0.38, 0],      // Base bottom
+      [0.38, 0.05],   // Base edge
+      [0.33, 0.1],    // Base bevel
+      [0.3, 0.12],    // Base top
+      [0.2, 0.14],    // Stem start
+      [0.18, 0.3],    // Stem lower
+      [0.17, 0.45],   // Stem middle
+      [0.2, 0.5],     // Collar
+      [0.24, 0.54],   // Collar wide
+      [0.2, 0.58],    // Collar end
+      [0.16, 0.7],    // Neck
+      [0.22, 0.75],   // Crown base
+      [0.26, 0.82],   // Crown wide
+      [0.24, 0.9],    // Crown curve
+      [0.2, 1.0],     // Crown upper
+      [0.15, 1.08],   // Crown peak base
+      [0.18, 1.12],   // Crown points
+      [0.12, 1.18],   // Crown top
+      [0.08, 1.22],   // Ball base
+      [0.1, 1.28],    // Ball
+      [0.06, 1.32],   // Ball top
+      [0, 1.35],      // Top point
     ],
     height: 1.35,
   },
-  k: { // King
+  k: { // King - Cross crown style
     segments: [
-      [0.4, 0],
-      [0.4, 0.1],
-      [0.32, 0.15],
-      [0.22, 0.6],
-      [0.3, 0.75],
-      [0.18, 1.1],
-      [0.12, 1.3],
-      [0.06, 1.35],
-      [0.06, 1.5],
-      [0.02, 1.5],
+      [0.4, 0],       // Base bottom
+      [0.4, 0.05],    // Base edge
+      [0.35, 0.1],    // Base bevel
+      [0.32, 0.12],   // Base top
+      [0.22, 0.14],   // Stem start
+      [0.2, 0.3],     // Stem lower
+      [0.18, 0.5],    // Stem middle
+      [0.22, 0.55],   // Collar
+      [0.26, 0.6],    // Collar wide
+      [0.22, 0.65],   // Collar end
+      [0.18, 0.8],    // Neck
+      [0.24, 0.85],   // Crown base
+      [0.28, 0.92],   // Crown wide
+      [0.26, 1.0],    // Crown curve
+      [0.22, 1.1],    // Crown upper
+      [0.18, 1.18],   // Crown peak
+      [0.14, 1.25],   // Cross base
+      [0.06, 1.28],   // Cross vertical start
+      [0.06, 1.35],   // Cross horizontal level
+      [0.12, 1.35],   // Cross arm
+      [0.12, 1.4],    // Cross arm top
+      [0.06, 1.4],    // Cross center
+      [0.06, 1.5],    // Cross top
+      [0, 1.52],      // Top point
     ],
-    height: 1.5,
+    height: 1.52,
   },
 };
 
@@ -103,9 +166,10 @@ export function ChessPiece3D({ type, color, position, isSelected, onClick }: Che
   const targetY = useRef(position[1]);
   const currentY = useRef(position[1]);
 
-  const pieceColor = color === 'w' ? '#f5f0e6' : '#1a1a1a';
-  const emissiveColor = isSelected ? '#d4a017' : color === 'w' ? '#f5f0e6' : '#2a2a2a';
-  const emissiveIntensity = isSelected ? 0.4 : 0.05;
+  // Realistic piece colors - ivory white and ebony black
+  const pieceColor = color === 'w' ? '#faf6f0' : '#2d2318';
+  const emissiveColor = isSelected ? '#ffd700' : color === 'w' ? '#fff8e7' : '#3d3328';
+  const emissiveIntensity = isSelected ? 0.5 : 0.02;
 
   targetY.current = isSelected ? position[1] + 0.3 : position[1];
 
@@ -136,13 +200,13 @@ export function ChessPiece3D({ type, color, position, isSelected, onClick }: Che
       castShadow
       receiveShadow
     >
-      <latheGeometry args={[points, 32]} />
+      <latheGeometry args={[points, 48]} />
       <meshStandardMaterial
         color={pieceColor}
         emissive={emissiveColor}
         emissiveIntensity={emissiveIntensity}
-        metalness={color === 'w' ? 0.1 : 0.3}
-        roughness={color === 'w' ? 0.4 : 0.6}
+        metalness={color === 'w' ? 0.05 : 0.15}
+        roughness={color === 'w' ? 0.25 : 0.35}
       />
     </mesh>
   );
