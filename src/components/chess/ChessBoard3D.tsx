@@ -31,33 +31,37 @@ function BoardSquare({
   isCheck: boolean;
   onClick: () => void;
 }) {
-  const baseColor = isLight ? '#d4b896' : '#6b4423';
+  // Polished wood colors - warm maple and rich walnut
+  const baseColor = isLight ? '#e8d4b8' : '#5c3d2e';
   let emissive = '#000000';
   let emissiveIntensity = 0;
 
   if (isCheck) {
-    emissive = '#ff4444';
-    emissiveIntensity = 0.5;
+    emissive = '#ff3333';
+    emissiveIntensity = 0.6;
   } else if (isSelected) {
-    emissive = '#d4a017';
-    emissiveIntensity = 0.4;
+    emissive = '#ffc107';
+    emissiveIntensity = 0.5;
   } else if (isLegalMove) {
-    emissive = '#22c55e';
-    emissiveIntensity = 0.3;
+    emissive = '#4ade80';
+    emissiveIntensity = 0.4;
   } else if (isLastMove) {
-    emissive = '#3b82f6';
-    emissiveIntensity = 0.15;
+    emissive = '#60a5fa';
+    emissiveIntensity = 0.2;
   }
 
   return (
     <mesh position={position} onClick={onClick} receiveShadow>
-      <boxGeometry args={[1, 0.2, 1]} />
-      <meshStandardMaterial
+      <boxGeometry args={[1, 0.18, 1]} />
+      <meshPhysicalMaterial
         color={baseColor}
         emissive={emissive}
         emissiveIntensity={emissiveIntensity}
-        metalness={0.1}
-        roughness={0.8}
+        metalness={0.05}
+        roughness={0.3}
+        clearcoat={0.6}
+        clearcoatRoughness={0.2}
+        reflectivity={0.5}
       />
     </mesh>
   );
@@ -101,17 +105,19 @@ function Board({
         />
       );
 
-      // Legal move indicator dots
+      // Elegant legal move indicators
       if (isLegalMove && !gameState.board[row][col]) {
         squares.push(
-          <mesh key={`dot-${square}`} position={[x, 0.15, z]}>
-            <cylinderGeometry args={[0.15, 0.15, 0.05, 32]} />
-            <meshStandardMaterial
+          <mesh key={`dot-${square}`} position={[x, 0.12, z]}>
+            <sphereGeometry args={[0.12, 32, 32]} />
+            <meshPhysicalMaterial
               color="#22c55e"
               emissive="#22c55e"
-              emissiveIntensity={0.5}
+              emissiveIntensity={0.6}
               transparent
-              opacity={0.7}
+              opacity={0.8}
+              metalness={0.3}
+              roughness={0.2}
             />
           </mesh>
         );
@@ -125,7 +131,7 @@ function Board({
             key={`piece-${square}`}
             type={piece.type}
             color={piece.color}
-            position={[x, 0.1, z]}
+            position={[x, 0.09, z]}
             isSelected={isSelectedPiece}
             onClick={() => onSquareClick(square)}
           />
@@ -134,30 +140,54 @@ function Board({
     }
   }
 
-  // Board frame
+  // Luxurious dark wood frame
   const frameSegments = [];
-  const frameThickness = 0.3;
-  const frameHeight = 0.25;
+  const frameThickness = 0.4;
+  const frameHeight = 0.3;
   const boardSize = 8;
 
+  const frameMaterial = (
+    <meshPhysicalMaterial 
+      color="#2d1810" 
+      metalness={0.1} 
+      roughness={0.4}
+      clearcoat={0.7}
+      clearcoatRoughness={0.15}
+    />
+  );
+
   frameSegments.push(
-    <mesh key="frame-front" position={[0, 0.025, -4.15]} receiveShadow>
+    <mesh key="frame-front" position={[0, 0.02, -4.2]} receiveShadow castShadow>
       <boxGeometry args={[boardSize + frameThickness * 2, frameHeight, frameThickness]} />
-      <meshStandardMaterial color="#3d2817" metalness={0.2} roughness={0.7} />
+      {frameMaterial}
     </mesh>,
-    <mesh key="frame-back" position={[0, 0.025, 4.15]} receiveShadow>
+    <mesh key="frame-back" position={[0, 0.02, 4.2]} receiveShadow castShadow>
       <boxGeometry args={[boardSize + frameThickness * 2, frameHeight, frameThickness]} />
-      <meshStandardMaterial color="#3d2817" metalness={0.2} roughness={0.7} />
+      {frameMaterial}
     </mesh>,
-    <mesh key="frame-left" position={[-4.15, 0.025, 0]} receiveShadow>
+    <mesh key="frame-left" position={[-4.2, 0.02, 0]} receiveShadow castShadow>
       <boxGeometry args={[frameThickness, frameHeight, boardSize]} />
-      <meshStandardMaterial color="#3d2817" metalness={0.2} roughness={0.7} />
+      {frameMaterial}
     </mesh>,
-    <mesh key="frame-right" position={[4.15, 0.025, 0]} receiveShadow>
+    <mesh key="frame-right" position={[4.2, 0.02, 0]} receiveShadow castShadow>
       <boxGeometry args={[frameThickness, frameHeight, boardSize]} />
-      <meshStandardMaterial color="#3d2817" metalness={0.2} roughness={0.7} />
+      {frameMaterial}
     </mesh>
   );
+
+  // Frame corners for luxury feel
+  const cornerSize = 0.5;
+  const corners = [
+    [-4.2, -4.2], [-4.2, 4.2], [4.2, -4.2], [4.2, 4.2]
+  ];
+  corners.forEach(([cx, cz], i) => {
+    frameSegments.push(
+      <mesh key={`corner-${i}`} position={[cx, 0.02, cz]} receiveShadow castShadow>
+        <boxGeometry args={[cornerSize, frameHeight, cornerSize]} />
+        {frameMaterial}
+      </mesh>
+    );
+  });
 
   return (
     <group>
@@ -186,44 +216,79 @@ export function ChessBoard3D(props: ChessBoard3DProps) {
         <Canvas
           shadows
           camera={{ position: [0, 10, 8], fov: 45 }}
-          gl={{ antialias: true, alpha: true }}
+          gl={{ 
+            antialias: true, 
+            alpha: true,
+            powerPreference: 'high-performance',
+          }}
+          dpr={[1, 2]}
           style={{ background: 'transparent' }}
         >
-          <color attach="background" args={['#151a23']} />
-          <fog attach="fog" args={['#151a23', 15, 30]} />
+          <color attach="background" args={['#0f1419']} />
+          <fog attach="fog" args={['#0f1419', 18, 35]} />
           
-          <ambientLight intensity={0.4} />
+          {/* Warm cinematic lighting */}
+          <ambientLight intensity={0.3} color="#fff5e6" />
+          
+          {/* Main key light - warm */}
           <directionalLight
-            position={[5, 10, 5]}
-            intensity={1}
+            position={[8, 15, 8]}
+            intensity={1.5}
+            color="#fff8f0"
             castShadow
-            shadow-mapSize={[2048, 2048]}
-            shadow-camera-far={50}
-            shadow-camera-left={-10}
-            shadow-camera-right={10}
-            shadow-camera-top={10}
-            shadow-camera-bottom={-10}
+            shadow-mapSize={[4096, 4096]}
+            shadow-camera-far={60}
+            shadow-camera-left={-12}
+            shadow-camera-right={12}
+            shadow-camera-top={12}
+            shadow-camera-bottom={-12}
+            shadow-bias={-0.0001}
           />
-          <pointLight position={[-5, 8, -5]} intensity={0.3} color="#ffeedd" />
+          
+          {/* Fill light - cool blue */}
+          <directionalLight
+            position={[-6, 8, -4]}
+            intensity={0.4}
+            color="#b4d4ff"
+          />
+          
+          {/* Rim light - warm accent */}
+          <pointLight 
+            position={[-8, 6, 8]} 
+            intensity={0.5} 
+            color="#ffd4a3" 
+            distance={20}
+          />
+          
+          {/* Top highlight */}
+          <pointLight 
+            position={[0, 12, 0]} 
+            intensity={0.3} 
+            color="#ffffff" 
+            distance={25}
+          />
           
           <Board {...props} />
           
           <ContactShadows
-            position={[0, -0.1, 0]}
-            opacity={0.4}
-            scale={20}
-            blur={2}
-            far={10}
+            position={[0, -0.12, 0]}
+            opacity={0.5}
+            scale={25}
+            blur={2.5}
+            far={12}
+            color="#0a0806"
           />
           
-          <Environment preset="studio" />
+          <Environment preset="studio" environmentIntensity={0.6} />
           
           <OrbitControls
             minPolarAngle={Math.PI / 6}
             maxPolarAngle={Math.PI / 2.2}
             minDistance={8}
-            maxDistance={18}
+            maxDistance={20}
             enablePan={false}
+            enableDamping
+            dampingFactor={0.05}
           />
         </Canvas>
       </Suspense>
