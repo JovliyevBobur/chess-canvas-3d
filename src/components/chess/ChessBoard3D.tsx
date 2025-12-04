@@ -3,6 +3,8 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
 import { Square } from 'chess.js';
 import { ChessPiece3D } from './ChessPiece3D';
+import { BoardLabels } from './BoardLabels';
+import { GameOverlay } from './GameOverlay';
 import { GameState } from '@/hooks/useChessGame';
 import { Loader2 } from 'lucide-react';
 
@@ -31,14 +33,13 @@ function BoardSquare({
   isCheck: boolean;
   onClick: () => void;
 }) {
-  // Polished wood colors - warm maple and rich walnut
   const baseColor = isLight ? '#e8d4b8' : '#5c3d2e';
   let emissive = '#000000';
   let emissiveIntensity = 0;
 
   if (isCheck) {
     emissive = '#ff3333';
-    emissiveIntensity = 0.6;
+    emissiveIntensity = 0.8;
   } else if (isSelected) {
     emissive = '#ffc107';
     emissiveIntensity = 0.5;
@@ -64,6 +65,18 @@ function BoardSquare({
         reflectivity={0.5}
       />
     </mesh>
+  );
+}
+
+function CheckGlow({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.15, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.45, 0.55, 32]} />
+        <meshBasicMaterial color="#ff4444" transparent opacity={0.8} />
+      </mesh>
+      <pointLight position={[0, 0.5, 0]} intensity={1.5} color="#ff3333" distance={3} />
+    </group>
   );
 }
 
@@ -105,7 +118,10 @@ function Board({
         />
       );
 
-      // Elegant legal move indicators
+      if (isCheck) {
+        squares.push(<CheckGlow key={`check-glow-${square}`} position={[x, 0, z]} />);
+      }
+
       if (isLegalMove && !gameState.board[row][col]) {
         squares.push(
           <mesh key={`dot-${square}`} position={[x, 0.12, z]}>
@@ -126,6 +142,7 @@ function Board({
       const piece = gameState.board[row][col];
       if (piece) {
         const isSelectedPiece = selectedSquare === square;
+        const isPieceInCheck = isCheck && piece.type === 'k';
         pieces.push(
           <ChessPiece3D
             key={`piece-${square}`}
@@ -133,6 +150,7 @@ function Board({
             color={piece.color}
             position={[x, 0.09, z]}
             isSelected={isSelectedPiece}
+            isInCheck={isPieceInCheck}
             onClick={() => onSquareClick(square)}
           />
         );
@@ -140,10 +158,9 @@ function Board({
     }
   }
 
-  // Luxurious dark wood frame
   const frameSegments = [];
-  const frameThickness = 0.4;
-  const frameHeight = 0.3;
+  const frameThickness = 0.5;
+  const frameHeight = 0.25;
   const boardSize = 8;
 
   const frameMaterial = (
@@ -157,28 +174,27 @@ function Board({
   );
 
   frameSegments.push(
-    <mesh key="frame-front" position={[0, 0.02, -4.2]} receiveShadow castShadow>
+    <mesh key="frame-front" position={[0, 0.02, -4.25]} receiveShadow castShadow>
       <boxGeometry args={[boardSize + frameThickness * 2, frameHeight, frameThickness]} />
       {frameMaterial}
     </mesh>,
-    <mesh key="frame-back" position={[0, 0.02, 4.2]} receiveShadow castShadow>
+    <mesh key="frame-back" position={[0, 0.02, 4.25]} receiveShadow castShadow>
       <boxGeometry args={[boardSize + frameThickness * 2, frameHeight, frameThickness]} />
       {frameMaterial}
     </mesh>,
-    <mesh key="frame-left" position={[-4.2, 0.02, 0]} receiveShadow castShadow>
+    <mesh key="frame-left" position={[-4.25, 0.02, 0]} receiveShadow castShadow>
       <boxGeometry args={[frameThickness, frameHeight, boardSize]} />
       {frameMaterial}
     </mesh>,
-    <mesh key="frame-right" position={[4.2, 0.02, 0]} receiveShadow castShadow>
+    <mesh key="frame-right" position={[4.25, 0.02, 0]} receiveShadow castShadow>
       <boxGeometry args={[frameThickness, frameHeight, boardSize]} />
       {frameMaterial}
     </mesh>
   );
 
-  // Frame corners for luxury feel
-  const cornerSize = 0.5;
+  const cornerSize = 0.6;
   const corners = [
-    [-4.2, -4.2], [-4.2, 4.2], [4.2, -4.2], [4.2, 4.2]
+    [-4.25, -4.25], [-4.25, 4.25], [4.25, -4.25], [4.25, 4.25]
   ];
   corners.forEach(([cx, cz], i) => {
     frameSegments.push(
@@ -194,6 +210,13 @@ function Board({
       {squares}
       {pieces}
       {frameSegments}
+      <BoardLabels />
+      <GameOverlay 
+        isCheck={gameState.isCheck}
+        isCheckmate={gameState.isCheckmate}
+        isStalemate={gameState.isStalemate}
+        winner={gameState.isCheckmate ? (gameState.turn === 'w' ? 'b' : 'w') : null}
+      />
     </group>
   );
 }
@@ -227,10 +250,8 @@ export function ChessBoard3D(props: ChessBoard3DProps) {
           <color attach="background" args={['#0f1419']} />
           <fog attach="fog" args={['#0f1419', 18, 35]} />
           
-          {/* Warm cinematic lighting */}
           <ambientLight intensity={0.3} color="#fff5e6" />
           
-          {/* Main key light - warm */}
           <directionalLight
             position={[8, 15, 8]}
             intensity={1.5}
@@ -245,14 +266,12 @@ export function ChessBoard3D(props: ChessBoard3DProps) {
             shadow-bias={-0.0001}
           />
           
-          {/* Fill light - cool blue */}
           <directionalLight
             position={[-6, 8, -4]}
             intensity={0.4}
             color="#b4d4ff"
           />
           
-          {/* Rim light - warm accent */}
           <pointLight 
             position={[-8, 6, 8]} 
             intensity={0.5} 
@@ -260,7 +279,6 @@ export function ChessBoard3D(props: ChessBoard3DProps) {
             distance={20}
           />
           
-          {/* Top highlight */}
           <pointLight 
             position={[0, 12, 0]} 
             intensity={0.3} 
